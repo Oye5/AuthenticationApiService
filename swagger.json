@@ -1,0 +1,71 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "3.7",
+        "title": "traccar"
+    },
+    "host": "traccar.org",
+    "basePath": "/api",
+    "schemes": [
+        "http"
+    ],
+    "paths": {
+        "/user/signin": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "headers":{
+				 "Content-Type":"application/json"
+				},
+                "parameters": [
+                    {
+                        "email":"body",
+                        "password":"body"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "headers": {},
+                        "schema": {
+                            "$ref": "#/definitions/user/signin"
+                        }
+                    }
+                }
+            }
+        },
+		"/user/signup": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "headers": {
+				 "Content-Type":"application/json"
+				},
+                "parameters": [
+                    {
+                        "email":"body",
+                        "username":"body",
+                        "password":"body"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "headers": {},
+                        "schema": {
+                            "$ref": "#/definitions/user/signup"
+                        }
+                    }
+                }
+            }
+        }
+	}
+}
