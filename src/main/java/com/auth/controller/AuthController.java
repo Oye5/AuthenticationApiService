@@ -1,5 +1,6 @@
 package com.auth.controller;
 
+import java.security.MessageDigest;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,14 +87,30 @@ public class AuthController {
 			User usr = userService.getUser(userLoginRequest.getEmail());
 			if (usr != null) {
 				if (usr.getPassword().equals(userLoginRequest.getPassword())) {
+
+					// generate random token and convert this generated token to sha256 64 bit auth token
+
 					String token = UUID.randomUUID().toString();
-					accounts.setProvider_token(token);
+					MessageDigest md = MessageDigest.getInstance("SHA-256");
+					md.update(token.getBytes());
+
+					byte byteData[] = md.digest();
+
+					// convert the byte to hex format
+					StringBuffer sb = new StringBuffer();
+					for (int i = 0; i < byteData.length; i++) {
+						sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
+					}
+
+					//System.out.println("Hex format : " + sb.toString());
+
+					accounts.setProvider_token(sb.toString());
 					accounts.setUser(usr);
 					accounts.setProvider_name(userLoginRequest.getProvider_name());
 					result = accountService.updateAccount(accounts);
 					if (result != 0) {
 						loginResponse = new LoginResponse();
-						loginResponse.setProviderToken(token);
+						loginResponse.setProviderToken(sb.toString());
 						loginResponse.setUserId(accounts.getUser().getUserId());
 						loginResponse.setUserName(usr.getUserName());
 					} else {

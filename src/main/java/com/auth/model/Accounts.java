@@ -16,29 +16,33 @@ public class Accounts implements Serializable {
 
 	@Id
 	@Column(name = "account_id")
-	private String accountId;
+	private int accountId;
 
 	@Column(name = "client")
+	@Size(max = 45)
 	private String client;
 
 	@Column(name = "account")
+	@Size(max = 45)
 	private String account;
 
 	@Column(name = "verified")
-	private String verified;
+	private int verified;
 
 	@ManyToOne
 	@JoinColumn(name = "user_id")
+	@Size(max = 45)
 	private User user;
 
 	@Column(name = "provider_name")
+	@Size(max = 45)
 	private String provider_name;
 
 	@Column(name = "provider_token")
-	@Size(max = 255)
+	@Size(max = 100)
 	private String provider_token;
 
-	public String getAccountId() {
+	public int getAccountId() {
 		return accountId;
 	}
 
@@ -48,10 +52,6 @@ public class Accounts implements Serializable {
 
 	public String getAccount() {
 		return account;
-	}
-
-	public String getVerified() {
-		return verified;
 	}
 
 	public User getUser() {
@@ -66,7 +66,7 @@ public class Accounts implements Serializable {
 		return provider_token;
 	}
 
-	public void setAccountId(String accountId) {
+	public void setAccountId(int accountId) {
 		this.accountId = accountId;
 	}
 
@@ -78,7 +78,11 @@ public class Accounts implements Serializable {
 		this.account = account;
 	}
 
-	public void setVerified(String verified) {
+	public int getVerified() {
+		return verified;
+	}
+
+	public void setVerified(int verified) {
 		this.verified = verified;
 	}
 
