@@ -103,33 +103,12 @@
 			<version>${joda-time.version}</version>
 		</dependency>
 
-		<dependency>
+		<!-- <dependency>
 			<groupId>org.jadira.usertype</groupId>
 			<artifactId>usertype.core</artifactId>
 			<version>3.0.0.CR1</version>
-		</dependency>
-
-		<dependency>
-			<groupId>io.searchbox</groupId>
-			<artifactId>jest</artifactId>
-			<version>2.0.0</version>
-		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/org.elasticsearch/elasticsearch -->
-		<dependency>
-			<groupId>org.elasticsearch</groupId>
-			<artifactId>elasticsearch</artifactId>
-			<version>2.0.0</version>
-		</dependency>
-
-		<!-- <dependency> <groupId>org.elasticsearch</groupId> <artifactId>elasticsearch</artifactId> 
-			<version>1.0.1</version> </dependency> -->
-
-		<dependency>
-			<groupId>de.bytefish</groupId>
-			<artifactId>elasticutils</artifactId>
-			<version>0.3</version>
-		</dependency>
+		</dependency> -->
+		
 		<!-- adding dependencies for Swagger -->
 		<dependency>
 			<groupId>io.springfox</groupId>

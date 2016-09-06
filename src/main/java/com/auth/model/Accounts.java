@@ -6,7 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
@@ -14,9 +14,14 @@ import javax.validation.constraints.Size;
 @Table(name = "accounts")
 public class Accounts implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	@Id
 	@Column(name = "account_id")
-	private int accountId;
+	private String accountId;
 
 	@Column(name = "client")
 	@Size(max = 45)
@@ -29,10 +34,9 @@ public class Accounts implements Serializable {
 	@Column(name = "verified")
 	private int verified;
 
-	@ManyToOne
+	@OneToOne
 	@JoinColumn(name = "user_id")
-	@Size(max = 45)
-	private User user;
+	private User userId;
 
 	@Column(name = "provider_name")
 	@Size(max = 45)
@@ -42,7 +46,7 @@ public class Accounts implements Serializable {
 	@Size(max = 100)
 	private String provider_token;
 
-	public int getAccountId() {
+	public String getAccountId() {
 		return accountId;
 	}
 
@@ -54,8 +58,12 @@ public class Accounts implements Serializable {
 		return account;
 	}
 
-	public User getUser() {
-		return user;
+	public int getVerified() {
+		return verified;
+	}
+
+	public User getUserId() {
+		return userId;
 	}
 
 	public String getProvider_name() {
@@ -66,7 +74,7 @@ public class Accounts implements Serializable {
 		return provider_token;
 	}
 
-	public void setAccountId(int accountId) {
+	public void setAccountId(String accountId) {
 		this.accountId = accountId;
 	}
 
@@ -78,16 +86,12 @@ public class Accounts implements Serializable {
 		this.account = account;
 	}
 
-	public int getVerified() {
-		return verified;
-	}
-
 	public void setVerified(int verified) {
 		this.verified = verified;
 	}
 
-	public void setUser(User user) {
-		this.user = user;
+	public void setUserId(User userId) {
+		this.userId = userId;
 	}
 
 	public void setProvider_name(String provider_name) {

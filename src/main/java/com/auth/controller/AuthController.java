@@ -47,19 +47,32 @@ public class AuthController {
 
 		try {
 			User user = new User();
+			Accounts account = new Accounts();
+
 			user.setAppType(userSignupRequest.getAppType());
-			user.setUserId(userSignupRequest.getUserId());
+
 			user.setEmail(userSignupRequest.getEmail());
 			user.setPassword(userSignupRequest.getPassword());
 			user.setUserName(userSignupRequest.getUsername());
+
+			// Set 32 bit User ID
+			String userid = UUID.randomUUID().toString();
+			user.setUserId(userid);
+			// save user details to db
 			userService.saveUser(user);
+			// create account for user
+			account.setAccountId(UUID.randomUUID().toString());
+			account.setProvider_name(userSignupRequest.getAppType());
+			account.setUserId(user);
+			accountService.createAccount(account);
+
 			response.setCode("S001");
 			response.setMessage("User created succssfully");
 			return new ResponseEntity<GenericResponse>(response, HttpStatus.OK);
 		} catch (org.hibernate.exception.ConstraintViolationException ex) {
 			response.setCode("V001");
 			response.setMessage("Email Id already used for signup");
-			return new ResponseEntity<GenericResponse>(response, HttpStatus.OK);
+			return new ResponseEntity<GenericResponse>(response, HttpStatus.BAD_REQUEST);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			response.setCode("E001");
@@ -87,7 +100,6 @@ public class AuthController {
 			User usr = userService.getUser(userLoginRequest.getEmail());
 			if (usr != null) {
 				if (usr.getPassword().equals(userLoginRequest.getPassword())) {
-
 					// generate random token and convert this generated token to sha256 64 bit auth token
 
 					String token = UUID.randomUUID().toString();
@@ -102,20 +114,20 @@ public class AuthController {
 						sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
 					}
 
-					//System.out.println("Hex format : " + sb.toString());
+					// System.out.println("Hex format : " + sb.toString());
 
 					accounts.setProvider_token(sb.toString());
-					accounts.setUser(usr);
+					accounts.setUserId(usr);
 					accounts.setProvider_name(userLoginRequest.getProvider_name());
 					result = accountService.updateAccount(accounts);
 					if (result != 0) {
 						loginResponse = new LoginResponse();
 						loginResponse.setProviderToken(sb.toString());
-						loginResponse.setUserId(accounts.getUser().getUserId());
+						loginResponse.setUserId(accounts.getUserId().getUserId());
 						loginResponse.setUserName(usr.getUserName());
 					} else {
 						response.setCode("E001");
-						response.setMessage("Acoount not activted yet");
+						response.setMessage("Account not activted yet");
 
 						return new ResponseEntity<GenericResponse>(response, HttpStatus.OK);
 					}
@@ -128,14 +140,14 @@ public class AuthController {
 					return new ResponseEntity<GenericResponse>(response, HttpStatus.OK);
 				}
 			} else {
-				response.setCode("V001");
+				response.setCode("V002");
 				response.setMessage("Email or Password doesn't matched");
 
 				return new ResponseEntity<GenericResponse>(response, HttpStatus.OK);
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			response.setCode("E001");
+			response.setCode("E002");
 			response.setMessage(ex.getMessage());
 
 			return new ResponseEntity<GenericResponse>(response, HttpStatus.BAD_REQUEST);

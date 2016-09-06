@@ -13,4 +13,10 @@ public class AccountDaoImpl extends AbstractDao<Long, Accounts> implements Accou
 
 	}
 
+	@Override
+	public void createAccount(Accounts account) {
+		persist(account);
+
+	}
+
 }

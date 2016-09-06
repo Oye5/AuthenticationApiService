@@ -4,8 +4,6 @@ public class UserSignupRequest {
 
 	private String appType;
 
-	private String userId;
-
 	private String email;
 
 	private String username;
@@ -34,14 +32,6 @@ public class UserSignupRequest {
 
 	public void setPassword(String password) {
 		this.password = password;
-	}
-
-	public String getUserId() {
-		return userId;
-	}
-
-	public void setUserId(String userId) {
-		this.userId = userId;
 	}
 
 	public String getAppType() {

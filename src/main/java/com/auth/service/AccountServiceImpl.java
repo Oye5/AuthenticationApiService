@@ -20,4 +20,10 @@ public class AccountServiceImpl implements AccountService {
 
 	}
 
+	@Override
+	public void createAccount(Accounts account) {
+		accountDao.createAccount(account);
+
+	}
+
 }

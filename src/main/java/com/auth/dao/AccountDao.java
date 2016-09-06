@@ -6,4 +6,6 @@ public interface AccountDao {
 
 	int updateAccount(Accounts account);
 
+	void createAccount(Accounts account);
+
 }

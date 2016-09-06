@@ -7,18 +7,17 @@ import org.springframework.transaction.annotation.Transactional;
 import com.auth.dao.UserDao;
 import com.auth.model.User;
 
-
 @Service
 @Transactional
 public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private UserDao userDao;
-	
+
 	@Override
 	public void saveUser(User user) {
 		// TODO Auto-generated method stub
-		 userDao.saveUser(user);
+		userDao.saveUser(user);
 	}
 
 	@Override
@@ -30,8 +29,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public void updateUser(User user) {
 		userDao.updateUser(user);
-		
+
 	}
-	
-	
-} 
+
+}

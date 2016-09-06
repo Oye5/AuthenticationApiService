@@ -28,13 +28,13 @@ public class User implements Serializable {
 	@Column(name = "app_type")
 	private String appType;
 
-	@Column(name = "username")
+	@Column(name = "username", unique = true, nullable = false)
 	private String userName;
 
 	@Column(name = "password")
 	private String password;
 
-	@Column(name = "email")
+	@Column(name = "email", unique = true, nullable = false)
 	private String email;
 
 	@Column(name = "creation_date")
