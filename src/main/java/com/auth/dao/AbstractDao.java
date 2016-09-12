@@ -56,8 +56,7 @@ public class AbstractDao<PK extends Serializable, T> {
 
 	protected int updateAccounts(Accounts account) {
 		String hqlUpdate = "update Accounts a set a.provider_token = :token where a.userId = :userId";
-		int result = getSession().createQuery(hqlUpdate).setString("token", account.getProvider_token()).setString("userId", account.getUserId().getUserId()).executeUpdate();
-		return result;
+		return getSession().createQuery(hqlUpdate).setString("token", account.getProvider_token()).setString("userId", account.getUserId().getUserId()).executeUpdate();
 
 	}
 

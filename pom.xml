@@ -3,11 +3,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.auth</groupId>
-	<artifactId>AuthenticationAPI</artifactId>
+	<artifactId>authenticationapi</artifactId>
 	<version>1.0-SNAPSHOT</version>
 	<packaging>war</packaging>
 
-	<name>AuthenticationAPI</name>
+	<name>authenticationapi</name>
 
 	<properties>
 		<springframework.version>4.3.0.RELEASE</springframework.version>

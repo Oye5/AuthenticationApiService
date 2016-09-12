@@ -54,7 +54,7 @@ public class AuthController {
 			user.setEmail(userSignupRequest.getEmail());
 			user.setPassword(userSignupRequest.getPassword());
 			user.setUserName(userSignupRequest.getUsername());
-
+			user.setActive(true);
 			// Set 32 bit User ID
 			String userid = UUID.randomUUID().toString();
 			user.setUserId(userid);
@@ -69,9 +69,9 @@ public class AuthController {
 			response.setCode("S001");
 			response.setMessage("User created succssfully");
 			return new ResponseEntity<GenericResponse>(response, HttpStatus.OK);
-		} catch (org.hibernate.exception.ConstraintViolationException ex) {
+		} catch (org.springframework.dao.DataIntegrityViolationException ex) {
 			response.setCode("V001");
-			response.setMessage("Email Id already used for signup");
+			response.setMessage("Email Id or username already used for signup. please try with other Email id and username");
 			return new ResponseEntity<GenericResponse>(response, HttpStatus.BAD_REQUEST);
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -121,6 +121,7 @@ public class AuthController {
 					accounts.setProvider_name(userLoginRequest.getProvider_name());
 					result = accountService.updateAccount(accounts);
 					if (result != 0) {
+
 						loginResponse = new LoginResponse();
 						loginResponse.setProviderToken(sb.toString());
 						loginResponse.setUserId(accounts.getUserId().getUserId());
