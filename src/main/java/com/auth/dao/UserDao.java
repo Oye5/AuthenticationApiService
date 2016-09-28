@@ -9,5 +9,6 @@ public interface UserDao {
 	User getUser(String email);
 
 	void updateUser(User user);
-
+	
+	User getUserByAccessToken(String accessToken);
 }

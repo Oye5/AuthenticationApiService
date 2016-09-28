@@ -32,4 +32,9 @@ public class UserServiceImpl implements UserService {
 
 	}
 
+	@Override
+	public User getUserByAccessToken(String accessToken) {
+		return userDao.getUserByAccessToken(accessToken);
+	}
+
 }

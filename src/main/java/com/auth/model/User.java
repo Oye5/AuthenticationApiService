@@ -52,6 +52,9 @@ public class User implements Serializable {
 	@Column(name = "unread_messages")
 	private int unreadMessages;
 
+	@Column(name = "fb_auth_token", length = 300)
+	private String fbAuthToken;
+
 	public String getUserId() {
 		return userId;
 	}
@@ -130,6 +133,14 @@ public class User implements Serializable {
 
 	public void setUnreadMessages(int unreadMessages) {
 		this.unreadMessages = unreadMessages;
+	}
+
+	public String getFbAuthToken() {
+		return fbAuthToken;
+	}
+
+	public void setFbAuthToken(String fbAuthToken) {
+		this.fbAuthToken = fbAuthToken;
 	}
 
 }

@@ -27,4 +27,11 @@ public class UserDaoImpl extends AbstractDao<Long, User> implements UserDao {
 
 	}
 
+	@Override
+	public User getUserByAccessToken(String accessToken) {
+		Criteria criteria = createEntityCriteria();
+		criteria.add(Restrictions.eq("fbAuthToken", accessToken));
+		return (User) criteria.uniqueResult();
+	}
+
 }

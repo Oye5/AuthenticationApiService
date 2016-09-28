@@ -2,6 +2,7 @@ package com.auth.dto.request;
 
 public class UserSignupRequest {
 
+	private String id;
 	private String appType;
 
 	private String email;
@@ -9,6 +10,14 @@ public class UserSignupRequest {
 	private String username;
 
 	private String password;
+
+	public String getId() {
+		return id;
+	}
+
+	public String getAppType() {
+		return appType;
+	}
 
 	public String getEmail() {
 		return email;
@@ -22,6 +31,14 @@ public class UserSignupRequest {
 		return password;
 	}
 
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public void setAppType(String appType) {
+		this.appType = appType;
+	}
+
 	public void setEmail(String email) {
 		this.email = email;
 	}
@@ -32,14 +49,6 @@ public class UserSignupRequest {
 
 	public void setPassword(String password) {
 		this.password = password;
-	}
-
-	public String getAppType() {
-		return appType;
-	}
-
-	public void setAppType(String appType) {
-		this.appType = appType;
 	}
 
 }

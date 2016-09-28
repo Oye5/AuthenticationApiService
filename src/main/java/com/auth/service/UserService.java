@@ -9,5 +9,5 @@ public interface UserService {
 	User getUser(String email);
 
 	void updateUser(User user);
-
+	User getUserByAccessToken(String accessToken);
 }
