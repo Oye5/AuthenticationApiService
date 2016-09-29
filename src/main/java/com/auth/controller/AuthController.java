@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -19,10 +20,11 @@ import com.auth.dto.request.UserSignupRequest;
 import com.auth.dto.response.GenericResponse;
 import com.auth.dto.response.LoginResponse;
 import com.auth.model.Accounts;
+import com.auth.model.Seller;
 import com.auth.model.User;
 import com.auth.service.AccountService;
+import com.auth.service.SellerService;
 import com.auth.service.UserService;
-import com.restfb.Connection;
 import com.restfb.DefaultFacebookClient;
 import com.restfb.FacebookClient;
 import com.restfb.Parameter;
@@ -40,6 +42,9 @@ public class AuthController {
 
 	@Autowired
 	private AccountService accountService;
+
+	@Autowired
+	private SellerService sellerService;
 
 	@RequestMapping(value = "/user/signup", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<GenericResponse> signup(@RequestBody UserSignupRequest userSignupRequest) {
@@ -81,7 +86,11 @@ public class AuthController {
 			account.setProvider_name(userSignupRequest.getUsername());
 			account.setUserId(user);
 			accountService.createAccount(account);
-
+			Seller seller = new Seller();
+			seller.setId(user.getUserId());
+			seller.setUserId(user);
+			seller.setBanned("no");
+			sellerService.saveSeller(seller);
 			response.setCode("S001");
 			response.setMessage("User created succssfully");
 			return new ResponseEntity<GenericResponse>(response, HttpStatus.OK);
@@ -114,50 +123,55 @@ public class AuthController {
 			LoginResponse loginResponse = null;
 			int result;
 			Accounts accounts = new Accounts();
-			User usr = userService.getUser(userLoginRequest.getEmail());
-			if (usr != null) {
-				if (usr.getPassword().equals(userLoginRequest.getPassword())) {
-					// generate random token and convert this generated token to sha256 64 bit auth token
+			User user = userService.getUser(userLoginRequest.getEmail());
+			if (user == null) {
+				response.setCode("V001");
+				response.setMessage("Email not valid please check.");
+				return new ResponseEntity<GenericResponse>(response, HttpStatus.OK);
+			}
+			Seller seller = sellerService.getSellerById(user.getUserId());
+			if (seller.getBanned().equalsIgnoreCase("banned")) {
+				response.setCode("V002");
+				response.setMessage("user banned can't login.");
+				return new ResponseEntity<GenericResponse>(response, HttpStatus.OK);
+			}
 
-					String token = UUID.randomUUID().toString();
-					MessageDigest md = MessageDigest.getInstance("SHA-256");
-					md.update(token.getBytes());
+			if (user.getPassword().equals(userLoginRequest.getPassword())) {
+				// generate random token and convert this generated token to sha256 64 bit auth token
 
-					byte byteData[] = md.digest();
+				String token = UUID.randomUUID().toString();
+				MessageDigest md = MessageDigest.getInstance("SHA-256");
+				md.update(token.getBytes());
 
-					// convert the byte to hex format
-					StringBuffer sb = new StringBuffer();
-					for (int i = 0; i < byteData.length; i++) {
-						sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
-					}
+				byte byteData[] = md.digest();
 
-					// System.out.println("Hex format : " + sb.toString());
+				// convert the byte to hex format
+				StringBuffer sb = new StringBuffer();
+				for (int i = 0; i < byteData.length; i++) {
+					sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
+				}
 
-					accounts.setProvider_token(sb.toString());
-					accounts.setUserId(usr);
-					accounts.setProvider_name(userLoginRequest.getProvider_name());
-					result = accountService.updateAccount(accounts);
-					if (result != 0) {
+				// System.out.println("Hex format : " + sb.toString());
 
-						loginResponse = new LoginResponse();
-						loginResponse.setProviderToken(sb.toString());
-						loginResponse.setUserId(accounts.getUserId().getUserId());
-						loginResponse.setUserName(usr.getUserName());
-					} else {
-						response.setCode("E001");
-						response.setMessage("Account not activted yet");
-						return new ResponseEntity<GenericResponse>(response, HttpStatus.EXPECTATION_FAILED);
-					}
-					return new ResponseEntity<LoginResponse>(loginResponse, HttpStatus.OK);
+				accounts.setProvider_token(sb.toString());
+				accounts.setUserId(user);
+				accounts.setProvider_name(userLoginRequest.getProvider_name());
+				result = accountService.updateAccount(accounts);
+				if (result != 0) {
+
+					loginResponse = new LoginResponse();
+					loginResponse.setProviderToken(sb.toString());
+					loginResponse.setUserId(accounts.getUserId().getUserId());
+					loginResponse.setUserName(user.getUserName());
 				} else {
-					response.setCode("V001");
-					response.setMessage("Email or Password doesn't matched");
-
+					response.setCode("E001");
+					response.setMessage("Account not activted yet");
 					return new ResponseEntity<GenericResponse>(response, HttpStatus.EXPECTATION_FAILED);
 				}
+				return new ResponseEntity<LoginResponse>(loginResponse, HttpStatus.OK);
 			} else {
-				response.setCode("V002");
-				response.setMessage("email id doesn't exist");
+				response.setCode("V003");
+				response.setMessage("Email or Password doesn't matched");
 
 				return new ResponseEntity<GenericResponse>(response, HttpStatus.EXPECTATION_FAILED);
 			}
@@ -185,16 +199,11 @@ public class AuthController {
 		GenericResponse response = new GenericResponse();
 		LoginResponse loginResponse = new LoginResponse();
 		try {
-			System.out.println("==token====" + accessToken);
-			System.out.println("==app====" + APP_SECRET);
 			FacebookClient facebookClient = new DefaultFacebookClient(accessToken, "8e2cf44150f2bb506dc14946acdeccb7", Version.VERSION_2_7);
 			com.restfb.types.User fbUser = facebookClient.fetchObject("me", com.restfb.types.User.class, Parameter.with("fields", "name,id,email,devices"));
-			System.out.println("----------------------iii---");
 			User user = userService.getUserByAccessToken(accessToken);
-			System.out.println("==================device=--==" + fbUser.getDevices());
 			if (user == null) {
 				User newUser = new User();
-				System.out.println("-----------------device--" + fbUser.getDevices() + "--00--" + fbUser.getDevices().get(0));
 				if (fbUser.getDevices().size() != 0)
 					newUser.setAppType(fbUser.getDevices().get(0).toString());
 				else
@@ -203,9 +212,7 @@ public class AuthController {
 				newUser.setUserName(fbUser.getName());
 				newUser.setEmail(fbUser.getEmail());
 				newUser.setFbAuthToken(accessToken);
-				System.out.println("()))=======");
 				userService.saveUser(newUser);
-				System.out.println("(77777)))=======");
 				Accounts account = new Accounts();
 				account.setAccountId(UUID.randomUUID().toString());
 				// generate authtoken
@@ -226,10 +233,8 @@ public class AuthController {
 				account.setProvider_token(sb.toString());
 				account.setUserId(newUser);
 				account.setProvider_name(fbUser.getName());
-				System.out.println("())111111)=======");
 
 				accountService.createAccount(account);
-				System.out.println("===result===");
 
 				loginResponse = new LoginResponse();
 				loginResponse.setProviderToken(sb.toString());
@@ -239,7 +244,6 @@ public class AuthController {
 				return new ResponseEntity<LoginResponse>(loginResponse, HttpStatus.OK);
 
 			} else {
-				System.out.println("--else======");
 				Accounts accounts = new Accounts();
 				String token = UUID.randomUUID().toString();
 				MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -259,7 +263,7 @@ public class AuthController {
 				accounts.setUserId(user);
 				accounts.setProvider_name(user.getUserName());
 				int result = accountService.updateAccount(accounts);
-				System.out.println("=res11==" + result);
+				// System.out.println("=res11==" + result);
 				if (result != 0) {
 
 					loginResponse = new LoginResponse();
@@ -273,10 +277,6 @@ public class AuthController {
 					return new ResponseEntity<GenericResponse>(response, HttpStatus.BAD_REQUEST);
 				}
 			}
-
-			System.out.println("-----email----" + fbUser.getEmail());
-			System.out.println("-----1----" + fbUser);
-			System.out.println("===========" + fbUser.getName() + fbUser.getType());
 			System.out.println(fbUser.getBirthday());
 			System.out.println("==" + fbUser.getBirthdayAsDate() + "==" + fbUser.getUsername());
 			// user.getBirthday();
@@ -288,6 +288,31 @@ public class AuthController {
 			response.setMessage(ex.getMessage());
 
 			return new ResponseEntity<GenericResponse>(response, HttpStatus.BAD_REQUEST);
+		}
+
+	}
+
+	/**
+	 * admin api to banned user
+	 * 
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping(value = "/v1/admin/banneduser/{userId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> bannedUSer(@PathVariable("userId") String userId) {
+		GenericResponse response = new GenericResponse();
+		try {
+			Seller seller = sellerService.getSellerById(userId);
+			seller.setBanned("banned");
+			sellerService.updateSeller(seller);
+			response.setCode("S001");
+			response.setMessage("seller banned");
+			return new ResponseEntity<GenericResponse>(response, HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.setCode("E001");
+			response.setMessage(e.getMessage());
+			return new ResponseEntity<GenericResponse>(response, HttpStatus.OK);
 		}
 
 	}
