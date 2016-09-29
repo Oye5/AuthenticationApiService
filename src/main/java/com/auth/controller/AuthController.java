@@ -303,6 +303,11 @@ public class AuthController {
 		GenericResponse response = new GenericResponse();
 		try {
 			Seller seller = sellerService.getSellerById(userId);
+			if (seller == null) {
+				response.setCode("V001");
+				response.setMessage("user ID not found. please check userId");
+				return new ResponseEntity<GenericResponse>(response, HttpStatus.EXPECTATION_FAILED);
+			}
 			seller.setBanned("banned");
 			sellerService.updateSeller(seller);
 			response.setCode("S001");
@@ -312,7 +317,7 @@ public class AuthController {
 			e.printStackTrace();
 			response.setCode("E001");
 			response.setMessage(e.getMessage());
-			return new ResponseEntity<GenericResponse>(response, HttpStatus.OK);
+			return new ResponseEntity<GenericResponse>(response, HttpStatus.BAD_REQUEST);
 		}
 
 	}
